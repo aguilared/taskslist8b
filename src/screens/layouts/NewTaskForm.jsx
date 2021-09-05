@@ -1,11 +1,14 @@
+import { useContext, useState, useEffect } from "react";
 import * as yup from "yup";
 import { useFormik } from "formik";
-import { useMutation, gql } from "@apollo/client";
 import Typography from "@material-ui/core/Typography";
 import Grid from "@material-ui/core/Grid";
 import { Button } from "../../components/Button";
 import { Input } from "../../components/Input";
 import Box from "@material-ui/core/Box";
+import { useHistory, useParams } from "react-router-dom";
+
+import { useAppContext } from "../../context/AppContext";
 
 const validationSchema = yup.object({
   newTaskText: yup
@@ -14,18 +17,27 @@ const validationSchema = yup.object({
     .required("Required"),
 });
 
-const CREATE_TASK = gql`
-  mutation TASK_ADD($data: TaskCreateInput!) {
-    taskCreate(data: $data) {
-      description
-      id
-      status
-      createdAt
-    }
-  }
-`;
 function NewTaskForm() {
-  const [createTask] = useMutation(CREATE_TASK);
+  const history = useHistory();
+  const params = useParams();
+  const [task, setTask] = useState({
+    id: "",
+    status: "",
+    description: "",
+  });
+  console.log("ParamID", params.id);
+
+  const { handleAddTask, tasks } = useAppContext();
+  useEffect(() => {
+    const taskFound = tasks.find((task) => task.id === params.id);
+    if (taskFound) {
+      setTask({
+        id: taskFound.id,
+        status: taskFound.status,
+        description: taskFound.description,
+      });
+    }
+  }, [params.id, tasks]);
 
   const formik = useFormik({
     initialValues: {
@@ -33,8 +45,13 @@ function NewTaskForm() {
       status: "pending",
     },
     validationSchema: validationSchema,
+
     onSubmit: ({ newTaskText, status }, { resetForm }) => {
-      createTask({ variables: { data: { description: newTaskText, status } } });
+      if (!task.id) {
+        handleAddTask({ description: newTaskText, status });
+      } else {
+        handleAddTask(task);
+      }
       resetForm();
     },
   });
@@ -44,19 +61,41 @@ function NewTaskForm() {
       <Grid item xs={12}>
         <Box my={10} width="100%">
           <form onSubmit={formik.handleSubmit}>
-            <Input
-              label="Add new task text"
-              id="newTaskText"
-              name="newTaskText"
-              value={formik.values.newTaskText}
-              onChange={formik.handleChange}
-              error={
-                formik.touched.newTaskText && Boolean(formik.errors.newTaskText)
-              }
-              helperText={formik.touched.newTaskText && formik.errors.email}
-            />
+            <h2 className="text-3xl mb-7">
+              {task.id ? "Update " : "Create "}A Task
+            </h2>
+            {task.id ? (
+              <Input
+                label="Update task text"
+                id="newTaskText"
+                name="newTaskText"
+                value={task.description}
+                onChange={formik.handleChange}
+                error={
+                  formik.touched.newTaskText &&
+                  Boolean(formik.errors.newTaskText)
+                }
+                helperText={formik.touched.newTaskText && formik.errors.email}
+              />
+            ) : (
+              <Input
+                label="Add new task text"
+                id="newTaskText"
+                name="newTaskText"
+                value={formik.values.newTaskText}
+                onChange={formik.handleChange}
+                error={
+                  formik.touched.newTaskText &&
+                  Boolean(formik.errors.newTaskText)
+                }
+                helperText={formik.touched.newTaskText && formik.errors.email}
+              />
+            )}
             <Button color="primary" variant="contained" type="submit">
-              <Typography>Submit</Typography>
+              <Typography>
+                {" "}
+                {task.id ? "Update Task" : "Create Task"}
+              </Typography>
             </Button>
           </form>
         </Box>

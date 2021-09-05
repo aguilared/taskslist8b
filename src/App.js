@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import {
   ApolloProvider,
   ApolloClient,
+  ApolloLink,
   InMemoryCache,
   HttpLink,
   split,
@@ -10,6 +11,7 @@ import { getMainDefinition } from "@apollo/client/utilities";
 import { WebSocketLink } from "@apollo/client/link/ws";
 
 import Home from "./screens/Home";
+import { AppProvider } from "./context/AppContext";
 
 const wsLink = new WebSocketLink({
   uri: process.env.REACT_APP_WS_CLIENT,
@@ -39,23 +41,26 @@ const splitLink = split(
   httpLink
 );
 
+const link = ApolloLink.from([splitLink]);
+
 const client = new ApolloClient({
-  link: splitLink,
+  link,
   cache: new InMemoryCache(),
 });
 
 function App() {
   return (
     <ApolloProvider client={client}>
-      <Router>
-        <div>
-          <Switch>
-            <Route exact path="/">
-              <Home />
-            </Route>
-          </Switch>
-        </div>
-      </Router>
+      <AppProvider>
+        <Router>
+          <div>
+            <Switch>
+              <Route path="/" component={Home} exact />
+              <Route path="/edit/:id" component={Home} exact />
+            </Switch>
+          </div>
+        </Router>
+      </AppProvider>
     </ApolloProvider>
   );
 }

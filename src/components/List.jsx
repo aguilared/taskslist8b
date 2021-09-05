@@ -6,6 +6,7 @@ import { Delete, Build } from "@material-ui/icons";
 import Avatar from "@material-ui/core/Avatar";
 import ImageIcon from "@material-ui/icons/Image";
 import IconButton from "@material-ui/core/IconButton";
+import { Link } from "react-router-dom";
 import { format } from "date-fns";
 
 // const array = [{id: 1, description: 'asdsad fsadasas', status: 'completed' 'todo' 'forget', createdAt }]
@@ -31,30 +32,32 @@ const styles = {
   },
 };
 export const List = ({ items, onDelete }) => (
-  <MList className={styles.root}>
-    {items.map((v) => (
-      <ListItem key={`${v.id}`}>
-        <ListItemAvatar>
-          <Avatar>
-            <ImageIcon />
-          </Avatar>
-        </ListItemAvatar>
+  <MList>
+    {items &&
+      items.map((v) => (
+        <ListItem key={`${v.id}`}>
+          <ListItemAvatar>
+            <Avatar>
+              <ImageIcon />
+            </Avatar>
+          </ListItemAvatar>
 
-        <ListItemText
-          primary={v.description}
-          secondary={format(new Date(v.createdAt), "dd MMM yyyy")}
-        />
-        <IconButton color="primary" aria-label="Edit" style={styles.Icon}>
-          <Build fontSize="small" />
-        </IconButton>
-        <IconButton
-          color="secondary"
-          aria-label="Delete"
-          onClick={() => onDelete(v.id)}
-        >
-          <Delete fontSize="small" />
-        </IconButton>
-      </ListItem>
-    ))}
+          <ListItemText
+            primary={v.description}
+            secondary={format(new Date(v.createdAt), "dd MMM yyyy")}
+          />
+          <IconButton color="primary" aria-label="Edit" style={styles.Icon}>
+            <Build fontSize="small" />
+            <Link to={`/edit/${v.id}`}>Edit</Link>
+          </IconButton>
+          <IconButton
+            color="secondary"
+            aria-label="Delete"
+            onClick={() => onDelete(v.id)}
+          >
+            <Delete fontSize="small" />
+          </IconButton>
+        </ListItem>
+      ))}
   </MList>
 );
