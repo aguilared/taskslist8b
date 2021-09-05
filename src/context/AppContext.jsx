@@ -39,15 +39,13 @@ const DELETE_TASK = gql`
   }
 `;
 
-const GET_TASK = gql`
-  query GetTasks {
-    tasksList(filter: { id: { equals: "ckt3khsw9006308l1dtiefab8" } }) {
-      items {
-        description
-        id
-        status
-        createdAt
-      }
+const UPDATE_TASK = gql`
+  mutation UPDATE_TASK($data: TaskUpdateInput!, $filter: TaskKeyFilter!) {
+    taskUpdate(data: $data, filter: $filter) {
+      description
+      id
+      status
+      createdAt
     }
   }
 `;
@@ -74,6 +72,19 @@ export function AppProvider({ children }) {
       setTasks([taskCreate, ...tasks]);
     },
   });
+  const [updateTask] = useMutation(UPDATE_TASK, {
+    onCompleted({ taskUpdate }) {
+      console.log({ taskUpdate });
+      const newTaks = tasks.map((task) =>
+        task.id === taskUpdate.id
+          ? {
+              ...taskUpdate,
+            }
+          : task
+      );
+      setTasks(newTaks);
+    },
+  });
 
   useEffect(() => {
     const setTaskList = () => {
@@ -96,10 +107,24 @@ export function AppProvider({ children }) {
     },
     [createTask]
   );
+  const handleUpdateTask = useCallback(
+    (taskData) => {
+      updateTask({
+        variables: { data: taskData, filter: { id: taskData.id } },
+      });
+    },
+    [updateTask]
+  );
 
   return (
     <AppContent.Provider
-      value={{ tasks, handleDeleteTask, handleAddTask, isLoadingTaskList }}
+      value={{
+        tasks,
+        handleDeleteTask,
+        handleAddTask,
+        handleUpdateTask,
+        isLoadingTaskList,
+      }}
     >
       {children}
     </AppContent.Provider>
