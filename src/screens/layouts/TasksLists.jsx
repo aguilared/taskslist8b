@@ -5,7 +5,13 @@ import { useAppContext } from "../../context/AppContext";
 import { List } from "../../components/List";
 
 function TasksLists() {
-  const { tasks, isLoadingTaskList, handleDeleteTask } = useAppContext();
+  const {
+    tasks,
+    isLoadingTaskList,
+    handleDeleteTask,
+    handleToToggle,
+    handleUpdateTask,
+  } = useAppContext();
 
   if (isLoadingTaskList) {
     return <Typography>Loading list...</Typography>;
@@ -13,7 +19,13 @@ function TasksLists() {
 
   return (
     <Grid container>
-      {tasks && <List onDelete={handleDeleteTask} items={tasks} />}
+      {tasks && (
+        <List
+          onDelete={handleDeleteTask}
+          items={tasks}
+          onToggle={handleUpdateTask}
+        />
+      )}
     </Grid>
   );
 }

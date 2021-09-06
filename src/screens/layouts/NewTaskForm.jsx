@@ -23,20 +23,23 @@ function NewTaskForm({ isUpdate, initialValues, onUpdate }) {
       : {
           description: "",
           status: "pending",
+          completed: false,
         },
     validationSchema: validationSchema,
 
-    onSubmit: ({ description, status }, { resetForm }) => {
+    onSubmit: ({ description, status, completed }, { resetForm }) => {
+      console.log("updatinggg");
       if (isUpdate) {
         handleUpdateTask({
           id: initialValues.id,
           description,
           status: initialValues.status,
+          completed: initialValues.status,
         });
         onUpdate();
         return resetForm();
       }
-      handleAddTask({ description, status });
+      handleAddTask({ description, status, completed });
       return resetForm();
     },
   });
@@ -60,7 +63,12 @@ function NewTaskForm({ isUpdate, initialValues, onUpdate }) {
               }
             />
 
-            <Button color="primary" variant="contained" type="submit">
+            <Button
+              color="primary"
+              variant="contained"
+              type="submit"
+              data-testid="submitBtn"
+            >
               <Typography>
                 {" "}
                 {isUpdate ? "Update Task" : "Create Task"}

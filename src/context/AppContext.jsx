@@ -14,6 +14,7 @@ const GET_TASKS = gql`
         description
         id
         status
+        completed
         createdAt
       }
     }
@@ -26,6 +27,7 @@ const CREATE_TASK = gql`
       description
       id
       status
+      completed
       createdAt
     }
   }
@@ -39,12 +41,24 @@ const DELETE_TASK = gql`
   }
 `;
 
-const UPDATE_TASK = gql`
+export const UPDATE_TASK = gql`
   mutation UPDATE_TASK($data: TaskUpdateInput!, $filter: TaskKeyFilter!) {
     taskUpdate(data: $data, filter: $filter) {
       description
       id
       status
+      completed
+      createdAt
+    }
+  }
+`;
+export const TOGGLE_TASK = gql`
+  mutation UPDATE_TASK($data: TaskUpdateInput!, $filter: TaskKeyFilter!) {
+    taskUpdate(data: $data, filter: $filter) {
+      description
+      id
+      status
+      completed
       createdAt
     }
   }
@@ -55,6 +69,7 @@ const AppContent = createContext({
   isLoadingTaskList: false,
   handleDeleteTask: (idTask) => null,
   handleAddTask: (taskDAta) => null,
+  handleToggleTask: (taskDAta) => null,
 });
 
 export function AppProvider({ children }) {
@@ -73,6 +88,20 @@ export function AppProvider({ children }) {
     },
   });
   const [updateTask] = useMutation(UPDATE_TASK, {
+    onCompleted({ taskUpdate }) {
+      console.log({ taskUpdate });
+      const newTaks = tasks.map((task) =>
+        task.id === taskUpdate.id
+          ? {
+              ...taskUpdate,
+            }
+          : task
+      );
+      setTasks(newTaks);
+    },
+  });
+
+  const [toggleTask] = useMutation(UPDATE_TASK, {
     onCompleted({ taskUpdate }) {
       console.log({ taskUpdate });
       const newTaks = tasks.map((task) =>
@@ -109,6 +138,16 @@ export function AppProvider({ children }) {
   );
   const handleUpdateTask = useCallback(
     (taskData) => {
+      console.log("Datos to update>", taskData);
+      updateTask({
+        variables: { data: taskData, filter: { id: taskData.id } },
+      });
+    },
+    [updateTask]
+  );
+
+  const handleToggleTask = useCallback(
+    (taskData) => {
       updateTask({
         variables: { data: taskData, filter: { id: taskData.id } },
       });
@@ -123,6 +162,7 @@ export function AppProvider({ children }) {
         handleDeleteTask,
         handleAddTask,
         handleUpdateTask,
+        handleToggleTask,
         isLoadingTaskList,
       }}
     >
