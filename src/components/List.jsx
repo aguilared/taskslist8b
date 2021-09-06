@@ -60,11 +60,8 @@ export const List = ({ items, onDelete, onUpdate, onToggle }) => {
 const Item = memo(
   ({ id, createdAt, description, onDelete, status, completed, onToggle }) => {
     const [selected, setSelected] = useState(true);
-
     const [beginToUpdate, setBeginToUpdate] = useState(false);
-
-    const handleSelected = (event, newSelected) => {
-      console.log("NewSelected4", selected);
+    const handleSelected = () => {
       onToggle({ id, description, status, completed: selected });
     };
 
@@ -95,8 +92,7 @@ const Item = memo(
           selected={completed}
           onChange={() => {
             setSelected(!selected);
-            console.log("Selectede", selected);
-            handleSelected(selected);
+            handleSelected();
           }}
         >
           <CheckIcon />
