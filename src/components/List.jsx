@@ -2,43 +2,29 @@ import MList from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemAvatar from "@material-ui/core/ListItemAvatar";
 import ListItemText from "@material-ui/core/ListItemText";
-import { Delete, Build, ContactsOutlined } from "@material-ui/icons";
+import { Delete, Build } from "@material-ui/icons";
 import Avatar from "@material-ui/core/Avatar";
 import ImageIcon from "@material-ui/icons/Image";
 import IconButton from "@material-ui/core/IconButton";
 import ToggleButton from "@material-ui/lab/ToggleButton";
 import CheckIcon from "@material-ui/icons/Check";
-
+import ReplayIcon from "@material-ui/icons/Replay";
 import NewTaskForm from "../screens/layouts/NewTaskForm";
 import { format } from "date-fns";
 import { memo, useState } from "react";
+import clsx from "clsx";
+import { createStyles, makeStyles } from "@material-ui/styles";
 
-// const array = [{id: 1, description: 'asdsad fsadasas', status: 'completed' 'todo' 'forget', createdAt }]
-
-const styles = {
-  root: {
-    width: "100%",
-    maxWidth: 360,
-    position: "relative",
-    overflow: "auto",
-    maxHeight: 300,
-  },
-  Icon: {
-    marginLeft: "auto",
-  },
-  Paper: {
-    margin: "auto",
-    padding: 10,
-    display: "flex",
-    alignItems: "center",
-    marginTop: 10,
-    width: 500,
-  },
-};
-export const List = ({ items, onDelete, onUpdate, onToggle }) => {
+const useStyles = makeStyles(() =>
+  createStyles({
+    completedStyle: {
+      opacity: 0.2,
+    },
+  })
+);
+export const List = ({ items, onDelete, onComplete, onUpdate }) => {
   return (
     <MList>
-      {console.log("Items", items)}
       {items &&
         items.map((v) => (
           <Item
@@ -46,11 +32,10 @@ export const List = ({ items, onDelete, onUpdate, onToggle }) => {
             id={v.id}
             createdAt={v.createdAt}
             status={v.status}
-            completed={v.completed}
             description={v.description}
             onDelete={onDelete}
+            onComplete={onComplete}
             onUpdate={onUpdate}
-            onToggle={onToggle}
           />
         ))}
     </MList>
@@ -58,13 +43,10 @@ export const List = ({ items, onDelete, onUpdate, onToggle }) => {
 };
 
 const Item = memo(
-  ({ id, createdAt, description, onDelete, status, completed, onToggle }) => {
-    const [selected, setSelected] = useState(true);
+  ({ id, createdAt, description, onDelete, status, onComplete }) => {
     const [beginToUpdate, setBeginToUpdate] = useState(false);
-    const handleSelected = () => {
-      onToggle({ id, description, status, completed: selected });
-    };
-
+    const isCompleted = status === "completed";
+    const classes = useStyles();
     if (beginToUpdate) {
       return (
         <NewTaskForm
@@ -76,7 +58,11 @@ const Item = memo(
     }
 
     return (
-      <ListItem key={`${id}`}>
+      <ListItem
+        key={`${id}`}
+        className={clsx([isCompleted && classes.completedStyle])}
+        disabled={isCompleted}
+      >
         <ListItemAvatar>
           <Avatar>
             <ImageIcon />
@@ -87,32 +73,39 @@ const Item = memo(
           primary={description}
           secondary={format(new Date(createdAt), "dd MMM yyyy")}
         />
-        <ToggleButton
-          value="complete"
-          selected={completed}
-          onChange={() => {
-            setSelected(!selected);
-            handleSelected();
-          }}
-        >
-          <CheckIcon />
-        </ToggleButton>
 
-        <IconButton
-          color="primary"
-          aria-label="Edit"
-          style={styles.Icon}
-          onClick={() => setBeginToUpdate(true)}
-        >
-          <Build fontSize="small" />
-        </IconButton>
-        <IconButton
-          color="secondary"
-          aria-label="Delete"
-          onClick={() => onDelete(id)}
-        >
-          <Delete fontSize="small" />
-        </IconButton>
+        {isCompleted ? (
+          <IconButton onClick={() => onComplete(id, "pending")}>
+            <ReplayIcon fontSize="small" color="primary" />
+          </IconButton>
+        ) : (
+          <>
+            <ToggleButton
+              value={id}
+              onClick={() => onComplete(id, "completed")}
+              disabled={isCompleted}
+            >
+              <CheckIcon />
+            </ToggleButton>
+
+            <IconButton
+              color="primary"
+              aria-label="Edit"
+              onClick={() => setBeginToUpdate(true)}
+              disabled={isCompleted}
+            >
+              <Build fontSize="small" />
+            </IconButton>
+            <IconButton
+              color="secondary"
+              aria-label="Delete"
+              onClick={() => onDelete(id)}
+              disabled={isCompleted}
+            >
+              <Delete fontSize="small" />
+            </IconButton>
+          </>
+        )}
       </ListItem>
     );
   }

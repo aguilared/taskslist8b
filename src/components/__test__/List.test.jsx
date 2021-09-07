@@ -8,15 +8,13 @@ const mockItems = [
   {
     id: 1,
     description: "foo bar",
-    status: "completed",
-    completed: false,
+    status: "pending",
     createdAt: "2021-09-04T18:46:15.694Z",
   },
   {
     id: 2,
     description: "bar foo",
     status: "completed",
-    completed: false,
     createdAt: "2021-09-04T18:46:15.694Z",
   },
 ];
@@ -30,9 +28,7 @@ const mockData = {
       data: {
         id: 1,
         description: "foo barfoo barsomenewtext",
-        status: "completed",
-        completed: false,
-        d: false,
+        status: "pending",
       },
       filter: { id: 1 },
     },
@@ -42,9 +38,7 @@ const mockData = {
       taskUpdate: {
         id: 1,
         description: "foo barfoo barsomenewtext",
-        status: "completed",
-        complete: false,
-        d: false,
+        status: "pending",
         createdAt: "2021-09-04T18:46:15.694Z",
       },
     },

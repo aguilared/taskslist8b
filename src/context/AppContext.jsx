@@ -14,7 +14,6 @@ const GET_TASKS = gql`
         description
         id
         status
-        completed
         createdAt
       }
     }
@@ -27,7 +26,6 @@ const CREATE_TASK = gql`
       description
       id
       status
-      completed
       createdAt
     }
   }
@@ -47,7 +45,6 @@ export const UPDATE_TASK = gql`
       description
       id
       status
-      completed
       createdAt
     }
   }
@@ -58,7 +55,6 @@ export const TOGGLE_TASK = gql`
       description
       id
       status
-      completed
       createdAt
     }
   }
@@ -83,27 +79,11 @@ export function AppProvider({ children }) {
   });
   const [createTask] = useMutation(CREATE_TASK, {
     onCompleted({ taskCreate }) {
-      console.log({ taskCreate });
       setTasks([taskCreate, ...tasks]);
     },
   });
   const [updateTask] = useMutation(UPDATE_TASK, {
     onCompleted({ taskUpdate }) {
-      console.log({ taskUpdate });
-      const newTaks = tasks.map((task) =>
-        task.id === taskUpdate.id
-          ? {
-              ...taskUpdate,
-            }
-          : task
-      );
-      setTasks(newTaks);
-    },
-  });
-
-  const [toggleTask] = useMutation(UPDATE_TASK, {
-    onCompleted({ taskUpdate }) {
-      console.log({ taskUpdate });
       const newTaks = tasks.map((task) =>
         task.id === taskUpdate.id
           ? {
@@ -138,7 +118,6 @@ export function AppProvider({ children }) {
   );
   const handleUpdateTask = useCallback(
     (taskData) => {
-      console.log("Datos to update>", taskData);
       updateTask({
         variables: { data: taskData, filter: { id: taskData.id } },
       });
@@ -146,10 +125,10 @@ export function AppProvider({ children }) {
     [updateTask]
   );
 
-  const handleToggleTask = useCallback(
-    (taskData) => {
+  const handleCompleteTask = useCallback(
+    (id, status) => {
       updateTask({
-        variables: { data: taskData, filter: { id: taskData.id } },
+        variables: { data: { status }, filter: { id } },
       });
     },
     [updateTask]
@@ -162,7 +141,7 @@ export function AppProvider({ children }) {
         handleDeleteTask,
         handleAddTask,
         handleUpdateTask,
-        handleToggleTask,
+        handleCompleteTask,
         isLoadingTaskList,
       }}
     >

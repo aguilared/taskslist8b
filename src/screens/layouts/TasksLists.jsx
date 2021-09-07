@@ -9,8 +9,8 @@ function TasksLists() {
     tasks,
     isLoadingTaskList,
     handleDeleteTask,
-    handleToToggle,
     handleUpdateTask,
+    handleCompleteTask,
   } = useAppContext();
 
   if (isLoadingTaskList) {
@@ -21,9 +21,10 @@ function TasksLists() {
     <Grid container>
       {tasks && (
         <List
-          onDelete={handleDeleteTask}
           items={tasks}
-          onToggle={handleUpdateTask}
+          onDelete={handleDeleteTask}
+          onUpdate={handleUpdateTask}
+          onComplete={handleCompleteTask}
         />
       )}
     </Grid>
